@@ -1,5 +1,6 @@
-from langchain_ollama import OllamaLLM
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 from pydantic import BaseModel
 import json
 import os
@@ -47,15 +48,13 @@ async def summarizer_node(state: AgentState) -> AgentState:
     """
     Summarizer agent. Runs AFTER the HITL interrupt and clinician approval.
     Produces the final structured SOAP note from all prior agent outputs.
-    This output is what gets stored in long-term memory after approval.
     """
-    llm = OllamaLLM(
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
-        model=os.getenv("OLLAMA_MODEL", "llama3"),
+    llm = ChatGroq(
+        model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
+        api_key=os.getenv("GROQ_API_KEY"),
     )
 
-    prompt = ChatPromptTemplate.from_template(SUMMARIZER_PROMPT)
-    chain = prompt | llm
+    chain = ChatPromptTemplate.from_template(SUMMARIZER_PROMPT) | llm | StrOutputParser()
 
     try:
         raw_output = await chain.ainvoke({

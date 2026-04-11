@@ -1,5 +1,6 @@
-from langchain_ollama import OllamaLLM
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 import json
 import os
 from graph.state import AgentState
@@ -23,7 +24,7 @@ Generate a ranked differential diagnosis list. Return ONLY valid JSON:
   "differentials": [
     {{
       "diagnosis": "string",
-      "confidence": 0.0-1.0,
+      "confidence": 0.0,
       "supporting_evidence": ["list"],
       "against_evidence": ["list"],
       "needs_revision": false
@@ -39,29 +40,22 @@ If overall_quality is not high, set needs_revision to true on entries that need 
 
 async def differential_node(state: AgentState) -> AgentState:
     """
-    Differential agent. Generates ranked differential diagnosis with a self-critique reflection loop.
-    On each pass it evaluates its own output and sets needs_revision flags.
-    The edge router decides whether to loop back or proceed to risk agent.
+    Differential agent. Generates ranked differential diagnosis with a self-critique
+    reflection loop. Sets needs_revision flags; the edge router decides whether to loop.
     """
-    llm = OllamaLLM(
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
-        model=os.getenv("OLLAMA_MODEL", "llama3"),
+    llm = ChatGroq(
+        model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
+        api_key=os.getenv("GROQ_API_KEY"),
     )
 
-    prompt = ChatPromptTemplate.from_template(DIFFERENTIAL_PROMPT)
-    chain = prompt | llm
-
-    intake = json.dumps(state.get("intake_payload", {}), indent=2)
-    history = json.dumps(state.get("prior_sessions", []), indent=2)
-    evidence = json.dumps(state.get("evidence_chunks", []), indent=2)
-    previous = json.dumps(state.get("differential", []), indent=2)
+    chain = ChatPromptTemplate.from_template(DIFFERENTIAL_PROMPT) | llm | StrOutputParser()
 
     try:
         raw_output = await chain.ainvoke({
-            "intake": intake,
-            "history": history,
-            "evidence": evidence,
-            "previous_differential": previous,
+            "intake": json.dumps(state.get("intake_payload", {}), indent=2),
+            "history": json.dumps(state.get("prior_sessions", []), indent=2),
+            "evidence": json.dumps(state.get("evidence_chunks", []), indent=2),
+            "previous_differential": json.dumps(state.get("differential", []), indent=2),
         })
         cleaned = raw_output.strip().replace("```json", "").replace("```", "").strip()
         result = json.loads(cleaned)

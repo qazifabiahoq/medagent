@@ -1,18 +1,29 @@
 fastapi==0.111.0
 uvicorn[standard]==0.29.0
-langgraph==0.1.5
-langchain==0.2.1
-langchain-community==0.2.1
-langchain-ollama==0.1.0
-weaviate-client==4.6.1
+
+# LangGraph + checkpointing
+langgraph>=0.2.28
+langgraph-checkpoint-postgres>=1.0.0
+
+# LangChain
+langchain>=0.2.16
+langchain-core>=0.2.38
+langchain-community>=0.2.16
+langchain-groq>=0.1.6
+langchain-huggingface>=0.0.3
+
+# Postgres (psycopg3 required by langgraph-checkpoint-postgres)
+psycopg[binary]>=3.1.19
+psycopg-pool>=3.2.0
+
+# Memory stores
+qdrant-client>=1.9.0
 redis==5.0.4
-asyncpg==0.29.0
-psycopg2-binary==2.9.9
-sqlalchemy==2.0.30
-pydantic==2.7.1
+
+# Other
+pydantic>=2.7.1
 python-dotenv==1.0.1
 sse-starlette==2.1.0
-spacy==3.7.4
 httpx==0.27.0
 pytest==8.2.0
 pytest-asyncio==0.23.7

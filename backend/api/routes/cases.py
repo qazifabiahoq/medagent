@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import uuid
 from graph.builder import build_graph
 from graph.state import AgentState
+from memory.short_term import ShortTermMemory
 
 router = APIRouter()
 
@@ -45,3 +46,21 @@ async def submit_case(body: CaseRequest, request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
     return {"thread_id": thread_id, "status": "running"}
+
+
+@router.get("/{thread_id}/state")
+async def get_case_state(thread_id: str):
+    """
+    Return the latest working state for a thread from Redis.
+    Falls back gracefully if Redis has no entry yet.
+    """
+    stm = ShortTermMemory()
+    try:
+        working = await stm.get_working_memory(thread_id)
+    finally:
+        await stm.close()
+
+    if not working:
+        raise HTTPException(status_code=404, detail="No working state found for this thread")
+
+    return {"thread_id": thread_id, "state": working}

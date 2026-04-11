@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import os
 
-from graph.builder import get_checkpointer
+from graph.checkpointer import create_checkpointer
 from api.routes import cases, stream, approve, history
 
 checkpointer = None
@@ -12,10 +12,14 @@ checkpointer = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global checkpointer
-    checkpointer = await get_checkpointer(os.getenv("POSTGRES_URL"))
+    postgres_url = os.getenv("POSTGRES_URL", "postgresql://medagent:medagent@postgres:5432/medagent")
+    checkpointer = await create_checkpointer(postgres_url)
     app.state.checkpointer = checkpointer
     yield
-    await checkpointer.conn.close()
+    try:
+        await checkpointer.conn.aclose()
+    except Exception:
+        pass
 
 
 app = FastAPI(title="MedAgent API", version="0.1.0", lifespan=lifespan)

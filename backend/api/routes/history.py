@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from langchain_ollama import OllamaEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 import os
 from memory.long_term import LongTermMemory
 
@@ -8,9 +8,9 @@ router = APIRouter()
 
 @router.get("/{patient_id}")
 async def get_patient_history(patient_id: str, query: str = ""):
-    embedder = OllamaEmbeddings(
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
-        model=os.getenv("OLLAMA_MODEL", "llama3"),
+    embedder = HuggingFaceEndpointEmbeddings(
+        model="sentence-transformers/all-MiniLM-L6-v2",
+        huggingfacehub_api_token=os.getenv("HUGGINGFACE_API_TOKEN"),
     )
     query_text = query if query else patient_id
     query_embedding = await embedder.aembed_query(query_text)

@@ -2,6 +2,12 @@ from typing import TypedDict, Annotated, Optional
 from langgraph.graph.message import add_messages
 
 
+def _merge_lists(a: list, b: list) -> list:
+    """Reducer for completed_agents: union of both lists, preserving order."""
+    seen = set(a)
+    return a + [x for x in b if x not in seen]
+
+
 class AgentState(TypedDict):
     # Core identifiers
     thread_id: str
@@ -31,7 +37,8 @@ class AgentState(TypedDict):
 
     # Orchestration
     next_agent: Optional[str]
-    completed_agents: list
+    # Reducer ensures parallel branches (history + research) both get recorded
+    completed_agents: Annotated[list, _merge_lists]
     error: Optional[str]
 
     # HITL

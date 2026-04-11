@@ -11,14 +11,6 @@ def route_after_intake(state: AgentState) -> str:
     return "error"
 
 
-def route_after_parallel(state: AgentState) -> str:
-    completed = state.get("completed_agents", [])
-    # Only proceed when both history and research have finished
-    if "history" in completed and "research" in completed:
-        return "differential"
-    return "wait"
-
-
 def route_after_differential(state: AgentState) -> str:
     reflection_count = state.get("reflection_count", 0)
     differential = state.get("differential", [])

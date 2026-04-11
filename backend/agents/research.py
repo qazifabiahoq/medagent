@@ -1,4 +1,4 @@
-from langchain_ollama import OllamaEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 import os
 from graph.state import AgentState
 from memory.long_term import LongTermMemory
@@ -6,8 +6,8 @@ from memory.long_term import LongTermMemory
 
 async def research_node(state: AgentState) -> AgentState:
     """
-    Research agent. Hybrid RAG retrieval over medical knowledge base in Weaviate.
-    Retrieves clinical guideline chunks and PubMed evidence relevant to the case.
+    Research agent. Semantic retrieval over medical knowledge base in Qdrant.
+    Retrieves clinical guideline chunks and evidence relevant to the case.
     Runs in parallel with history agent after intake completes.
     """
     intake_payload = state.get("intake_payload", {})
@@ -24,9 +24,9 @@ async def research_node(state: AgentState) -> AgentState:
             "completed_agents": completed + ["research"],
         }
 
-    embedder = OllamaEmbeddings(
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
-        model=os.getenv("OLLAMA_MODEL", "llama3"),
+    embedder = HuggingFaceEndpointEmbeddings(
+        model="sentence-transformers/all-MiniLM-L6-v2",
+        huggingfacehub_api_token=os.getenv("HUGGINGFACE_API_TOKEN"),
     )
     query_embedding = await embedder.aembed_query(query_text)
 

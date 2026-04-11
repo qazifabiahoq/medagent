@@ -1,11 +1,9 @@
-import spacy
-from langchain_ollama import OllamaLLM
+from langchain_groq import ChatGroq
 from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 import json
 import os
 from graph.state import AgentState
-
-nlp = spacy.load("en_core_web_sm")
 
 INTAKE_PROMPT = """You are a clinical intake parser. Extract structured information from the clinical note below.
 
@@ -28,21 +26,18 @@ Clinical note:
 async def intake_node(state: AgentState) -> AgentState:
     """
     Intake agent. Parses unstructured clinical note into a structured payload.
-    Uses spaCy for NER then LLM for structured extraction.
     """
     note = state["raw_note"]
 
-    llm = OllamaLLM(
-        base_url=os.getenv("OLLAMA_BASE_URL", "http://ollama:11434"),
-        model=os.getenv("OLLAMA_MODEL", "llama3"),
+    llm = ChatGroq(
+        model=os.getenv("GROQ_MODEL", "llama-3.1-8b-instant"),
+        api_key=os.getenv("GROQ_API_KEY"),
     )
 
-    prompt = ChatPromptTemplate.from_template(INTAKE_PROMPT)
-    chain = prompt | llm
+    chain = ChatPromptTemplate.from_template(INTAKE_PROMPT) | llm | StrOutputParser()
 
     try:
         raw_output = await chain.ainvoke({"note": note})
-        # Strip any markdown fences if model adds them
         cleaned = raw_output.strip().replace("```json", "").replace("```", "").strip()
         intake_payload = json.loads(cleaned)
     except Exception as e:
