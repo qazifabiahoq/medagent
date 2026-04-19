@@ -13,36 +13,30 @@ logger = logging.getLogger("medagent.startup")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Try to connect to Postgres checkpointer — fail gracefully so the
-    # server still starts and /health responds even if DB is unreachable.
-    try:
-        from graph.checkpointer import create_checkpointer
-        postgres_url = os.getenv("POSTGRES_URL", "")
-        if postgres_url:
-            checkpointer = await create_checkpointer(postgres_url)
-            app.state.checkpointer = checkpointer
-            logger.info("Checkpointer connected successfully")
-        else:
-            app.state.checkpointer = None
-            logger.warning("POSTGRES_URL not set — checkpointer disabled")
-    except Exception as e:
-        app.state.checkpointer = None
-        logger.error("Checkpointer failed to initialise: %s", e)
+    postgres_url = os.getenv("POSTGRES_URL", "")
+    app.state.checkpointer = None
 
+    if postgres_url:
+        try:
+            from graph.checkpointer import get_checkpointer_context
+            ctx = get_checkpointer_context(postgres_url)
+            async with ctx as checkpointer:
+                await checkpointer.setup()
+                app.state.checkpointer = checkpointer
+                logger.info("Checkpointer connected")
+                yield
+                return
+        except Exception as e:
+            logger.error("Checkpointer failed: %s", e)
+
+    # Fallback: run without checkpointer
     yield
-
-    try:
-        cp = getattr(app.state, "checkpointer", None)
-        if cp:
-            await cp.conn.aclose()
-    except Exception:
-        pass
 
 
 app = FastAPI(
     title="MedAgent API",
     version="1.0.0",
-    description="Clinical Intelligence Platform — multi-agent AI for structured SOAP note generation",
+    description="Clinical Intelligence Platform",
     lifespan=lifespan,
 )
 
@@ -68,5 +62,5 @@ async def health():
         "status": "ok",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "version": "1.0.0",
-        "checkpointer": getattr(app.state, "checkpointer", None) is not None,
+        "checkpointer": app.state.checkpointer is not None,
     }
