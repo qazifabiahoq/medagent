@@ -50,54 +50,52 @@ export function CaseInput({ onSubmit, loading }) {
     const form = e.target
     onSubmit({
       patient_id: form.patient_id.value,
-      raw_note: form.raw_note.value,
+      raw_note:   form.raw_note.value,
     })
   }
 
   const loadDemo = (demo, e) => {
     const form = e.currentTarget.closest('form')
-    form.querySelector('input[name="patient_id"]').value = demo.patient_id
+    form.querySelector('input[name="patient_id"]').value  = demo.patient_id
     form.querySelector('textarea[name="raw_note"]').value = demo.note
   }
 
   return (
     <form onSubmit={handleSubmit} className="card p-6 space-y-5">
       <div className="flex items-center gap-3 mb-1">
-        <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <rect x="1" y="1" width="12" height="12" rx="2" stroke="#818cf8" strokeWidth="1.3"/>
-            <path d="M4 5h6M4 7.5h6M4 10h4" stroke="#818cf8" strokeWidth="1.3" strokeLinecap="round"/>
+            <rect x="1" y="1" width="12" height="12" rx="2" stroke="white" strokeWidth="1.3"/>
+            <path d="M4 5h6M4 7.5h6M4 10h4" stroke="white" strokeWidth="1.3" strokeLinecap="round"/>
           </svg>
         </div>
         <div>
-          <p className="text-sm font-semibold text-white">Patient intake</p>
-          <p className="text-xs text-zinc-500">Enter patient details and clinical note</p>
+          <p className="text-sm font-semibold text-slate-900">New case</p>
+          <p className="text-xs text-slate-400">Enter patient details and clinical note</p>
         </div>
       </div>
 
-      {/* Demo scenario loader */}
+      {/* Demo scenarios */}
       <div>
-        <p className="text-xs font-semibold text-zinc-500 mb-2">Load demo scenario</p>
+        <p className="text-xs font-semibold text-slate-400 mb-2">Sample cases</p>
         <div className="flex gap-2 flex-wrap">
           {DEMO_CASES.map((demo) => (
             <button
               key={demo.label}
               type="button"
               onClick={(e) => loadDemo(demo, e)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 hover:border-indigo-500/40 transition-all duration-150"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-100 hover:bg-blue-50 text-slate-600 hover:text-blue-700 border border-slate-200 hover:border-blue-200 transition-all duration-150"
             >
               {demo.label}
             </button>
           ))}
         </div>
-        <p className="text-xs text-zinc-700 mt-1.5">
-          Click a scenario to pre-fill the form with a realistic clinical note
-        </p>
+        <p className="text-xs text-slate-300 mt-1.5">Pre-fills the form with a realistic clinical note</p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-zinc-400 mb-2">
+          <label className="block text-xs font-semibold text-slate-600 mb-2">
             Patient ID <span className="text-red-500">*</span>
           </label>
           <input
@@ -109,17 +107,17 @@ export function CaseInput({ onSubmit, loading }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-zinc-400 mb-2">
-            Unstructured clinical note <span className="text-red-500">*</span>
+          <label className="block text-xs font-semibold text-slate-600 mb-2">
+            Clinical note <span className="text-red-500">*</span>
           </label>
           <textarea
             name="raw_note"
             required
             rows={9}
             className="input-field resize-none leading-relaxed"
-            placeholder="Paste the raw clinical note here… or load a demo scenario above."
+            placeholder="Paste the clinical note here, or load a sample case above."
           />
-          <p className="text-xs text-zinc-700 mt-1.5">Free text, structured notes, or discharge summaries - any format accepted</p>
+          <p className="text-xs text-slate-300 mt-1.5">Free text, structured notes, or discharge summaries</p>
         </div>
       </div>
 
@@ -136,7 +134,7 @@ export function CaseInput({ onSubmit, loading }) {
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path d="M7 1v12M1 7h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
             </svg>
-            Start AI Analysis
+            Submit Case
           </>
         )}
       </button>
@@ -147,21 +145,21 @@ export function CaseInput({ onSubmit, loading }) {
 // ─── ApprovalGate ─────────────────────────────────────────────────────────────
 export function ApprovalGate({ onApprove }) {
   return (
-    <div className="card border-amber-800/50 overflow-hidden animate-slide-up">
-      <div className="h-0.5 bg-gradient-to-r from-amber-500 to-orange-500" />
+    <div className="card border-amber-200 overflow-hidden animate-slide-up">
+      <div className="h-1 bg-gradient-to-r from-amber-400 to-orange-400" />
 
       <div className="p-6">
         <div className="flex items-start gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-amber-900/30 border border-amber-800/50 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center flex-shrink-0">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2L14.5 13H1.5L8 2Z" stroke="#f59e0b" strokeWidth="1.4" strokeLinejoin="round"/>
-              <path d="M8 6.5v3M8 11v.5" stroke="#f59e0b" strokeWidth="1.4" strokeLinecap="round"/>
+              <path d="M8 2L14.5 13H1.5L8 2Z" stroke="#d97706" strokeWidth="1.4" strokeLinejoin="round"/>
+              <path d="M8 6.5v3M8 11v.5" stroke="#d97706" strokeWidth="1.4" strokeLinecap="round"/>
             </svg>
           </div>
           <div>
-            <p className="text-sm font-bold text-amber-400">Clinician Review Required</p>
-            <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
-              The AI has completed its analysis. Please review the differential diagnosis and risk flags before authorising the final SOAP note. No note is generated without your approval.
+            <p className="text-sm font-bold text-amber-700">Clinician Review Required</p>
+            <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+              Review the differential diagnosis and risk flags below before authorising the SOAP note. No documentation is generated without your explicit approval.
             </p>
           </div>
         </div>
@@ -170,7 +168,7 @@ export function ApprovalGate({ onApprove }) {
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          Approve &amp; Generate SOAP Note
+          Approve &amp; Generate Note
         </button>
       </div>
     </div>
@@ -179,42 +177,10 @@ export function ApprovalGate({ onApprove }) {
 
 // ─── SOAPOutput ───────────────────────────────────────────────────────────────
 const SOAP_SECTIONS = [
-  {
-    key: 'subjective',
-    label: 'Subjective',
-    abbr: 'S',
-    color: 'text-indigo-400',
-    bg: 'bg-indigo-500/8',
-    border: 'border-indigo-500/15',
-    accent: '#6366f1',
-  },
-  {
-    key: 'objective',
-    label: 'Objective',
-    abbr: 'O',
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/8',
-    border: 'border-violet-500/15',
-    accent: '#8b5cf6',
-  },
-  {
-    key: 'assessment',
-    label: 'Assessment',
-    abbr: 'A',
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/8',
-    border: 'border-amber-500/15',
-    accent: '#f59e0b',
-  },
-  {
-    key: 'plan',
-    label: 'Plan',
-    abbr: 'P',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/8',
-    border: 'border-emerald-500/15',
-    accent: '#10b981',
-  },
+  { key: 'subjective',  label: 'Subjective',  abbr: 'S', dotColor: 'bg-blue-500',    textColor: 'text-blue-700',    bg: 'bg-blue-50',   border: 'border-blue-100' },
+  { key: 'objective',   label: 'Objective',   abbr: 'O', dotColor: 'bg-violet-500',  textColor: 'text-violet-700',  bg: 'bg-violet-50', border: 'border-violet-100' },
+  { key: 'assessment',  label: 'Assessment',  abbr: 'A', dotColor: 'bg-amber-500',   textColor: 'text-amber-700',   bg: 'bg-amber-50',  border: 'border-amber-100' },
+  { key: 'plan',        label: 'Plan',        abbr: 'P', dotColor: 'bg-emerald-500', textColor: 'text-emerald-700', bg: 'bg-emerald-50',border: 'border-emerald-100' },
 ]
 
 export function SOAPOutput({ soapNote }) {
@@ -222,26 +188,26 @@ export function SOAPOutput({ soapNote }) {
 
   return (
     <div className="card overflow-hidden animate-slide-up">
-      <div className="h-0.5 bg-gradient-to-r from-indigo-500 via-violet-500 to-emerald-500" />
+      <div className="h-1 bg-gradient-to-r from-blue-500 via-violet-500 to-emerald-500" />
 
       <div className="card-header flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#10b981" strokeWidth="1.2"/>
-              <path d="M3 4h6M3 6h6M3 8h4" stroke="#10b981" strokeWidth="1.2" strokeLinecap="round"/>
+              <rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#059669" strokeWidth="1.2"/>
+              <path d="M3 4h6M3 6h6M3 8h4" stroke="#059669" strokeWidth="1.2" strokeLinecap="round"/>
             </svg>
           </div>
-          <p className="text-sm font-semibold text-white">SOAP Note</p>
+          <p className="text-sm font-semibold text-slate-900">SOAP Note</p>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span className="text-xs text-emerald-400 font-medium">AI Generated</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="text-xs text-emerald-700 font-semibold">AI Generated</span>
         </div>
       </div>
 
       <div className="p-5 space-y-3">
-        {SOAP_SECTIONS.map(({ key, label, abbr, color, bg, border, accent }, idx) => {
+        {SOAP_SECTIONS.map(({ key, label, abbr, dotColor, textColor, bg, border }, idx) => {
           const content = soapNote[key]
           if (!content) return null
           return (
@@ -251,25 +217,22 @@ export function SOAPOutput({ soapNote }) {
               style={{ animationDelay: `${idx * 80}ms` }}
             >
               <div className="flex items-center gap-2 mb-2">
-                <span
-                  className={`text-xs font-bold w-5 h-5 rounded flex items-center justify-center ${color}`}
-                  style={{ background: `${accent}18`, border: `1px solid ${accent}28` }}
-                >
+                <span className={`w-5 h-5 rounded text-xs font-bold flex items-center justify-center text-white ${dotColor}`}>
                   {abbr}
                 </span>
-                <p className={`text-xs font-semibold uppercase tracking-wider ${color}`}>{label}</p>
+                <p className={`text-xs font-semibold uppercase tracking-wider ${textColor}`}>{label}</p>
               </div>
-              <p className="text-sm text-zinc-200 leading-relaxed">{content}</p>
+              <p className="text-sm text-slate-700 leading-relaxed">{content}</p>
             </div>
           )
         })}
       </div>
 
-      {/* Mandatory AI disclaimer */}
+      {/* Mandatory disclaimer */}
       <div className="px-5 pb-5">
-        <div className="rounded-lg bg-zinc-800/50 border border-zinc-700/50 p-3">
-          <p className="text-xs text-zinc-500 leading-relaxed">
-            <span className="text-amber-500 font-semibold">Advisory only.</span>{' '}
+        <div className="rounded-lg bg-amber-50 border border-amber-100 p-3">
+          <p className="text-xs text-slate-500 leading-relaxed">
+            <span className="text-amber-600 font-semibold">Advisory only.</span>{' '}
             AI-generated output for clinical decision support. Not a substitute for professional clinical judgment.
             Must be reviewed and validated by a licensed clinician before any action is taken.
           </p>
