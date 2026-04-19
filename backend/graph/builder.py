@@ -1,7 +1,6 @@
 from typing import Callable
 from langgraph.graph import StateGraph, END
 
-from graph.checkpointer import create_checkpointer
 from graph.state import AgentState
 from graph.edges import route_after_intake, route_after_differential, route_after_risk
 from agents.supervisor import supervisor_node
@@ -81,6 +80,3 @@ def build_graph(checkpointer):
 
     return graph.compile(checkpointer=checkpointer, interrupt_before=["summarizer"])
 
-
-async def get_checkpointer(postgres_url: str):
-    return await create_checkpointer(postgres_url)
