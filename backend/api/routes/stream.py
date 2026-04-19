@@ -55,4 +55,12 @@ async def stream_case(thread_id: str, request: Request):
 
         yield {"event": "done", "data": json.dumps({"thread_id": thread_id})}
 
-    return EventSourceResponse(event_generator())
+    origin = request.headers.get("origin", "*")
+    return EventSourceResponse(
+        event_generator(),
+        headers={
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+            "Cache-Control": "no-cache",
+        },
+    )
