@@ -2,21 +2,39 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
+import logging
 import os
 
-from graph.checkpointer import create_checkpointer
 from api.routes import cases, stream, approve, history
 from api.middleware import RequestLoggingMiddleware
+
+logger = logging.getLogger("medagent.startup")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    postgres_url = os.getenv("POSTGRES_URL", "postgresql://medagent:medagent@postgres:5432/medagent")
-    checkpointer = await create_checkpointer(postgres_url)
-    app.state.checkpointer = checkpointer
-    yield
+    # Try to connect to Postgres checkpointer — fail gracefully so the
+    # server still starts and /health responds even if DB is unreachable.
     try:
-        await checkpointer.conn.aclose()
+        from graph.checkpointer import create_checkpointer
+        postgres_url = os.getenv("POSTGRES_URL", "")
+        if postgres_url:
+            checkpointer = await create_checkpointer(postgres_url)
+            app.state.checkpointer = checkpointer
+            logger.info("Checkpointer connected successfully")
+        else:
+            app.state.checkpointer = None
+            logger.warning("POSTGRES_URL not set — checkpointer disabled")
+    except Exception as e:
+        app.state.checkpointer = None
+        logger.error("Checkpointer failed to initialise: %s", e)
+
+    yield
+
+    try:
+        cp = getattr(app.state, "checkpointer", None)
+        if cp:
+            await cp.conn.aclose()
     except Exception:
         pass
 
@@ -50,4 +68,5 @@ async def health():
         "status": "ok",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "version": "1.0.0",
+        "checkpointer": getattr(app.state, "checkpointer", None) is not None,
     }
