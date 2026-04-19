@@ -8,11 +8,10 @@ router = APIRouter()
 @router.post("/{thread_id}")
 async def approve_case(thread_id: str, request: Request):
     """
-    HITL gate — clinician calls this after reviewing the differential and risk output.
-    Resumes the LangGraph from the interrupt checkpoint and runs the Summarizer Agent
-    to produce the final SOAP note.
-
-    No SOAP note is ever generated without a human explicitly calling this endpoint.
+    HITL gate. Records the clinician's approval decision and marks the thread
+    ready to resume. The frontend reconnects to the SSE stream, which calls
+    astream_events(None, ...) to resume the graph from the interrupt point
+    and stream the Summarizer agent events back in real time.
     """
     checkpointer = request.app.state.checkpointer
     graph = build_graph(checkpointer)
@@ -20,18 +19,13 @@ async def approve_case(thread_id: str, request: Request):
 
     try:
         snapshot = await graph.aget_state(config)
-        if not snapshot:
+        if snapshot is None:
             raise HTTPException(status_code=404, detail="Thread not found")
 
-        # Extract patient_id from the checkpoint state for audit logging
         state_values = snapshot.values if hasattr(snapshot, "values") else {}
         patient_id = state_values.get("patient_id", "unknown")
 
-        # Audit: record the clinician's approval decision
         log_clinician_decision(thread_id=thread_id, patient_id=patient_id, approved=True)
-
-        # Resume graph from the LangGraph interrupt
-        await graph.ainvoke(None, config=config)
 
         return {"thread_id": thread_id, "status": "approved"}
 

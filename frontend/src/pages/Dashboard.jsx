@@ -13,9 +13,10 @@ const NAV_ITEMS = [
 ]
 
 export default function Dashboard() {
-  const [threadId, setThreadId]     = useState(null)
-  const [loading, setLoading]       = useState(false)
-  const [activeNav, setActiveNav]   = useState('cases')
+  const [threadId, setThreadId]       = useState(null)
+  const [loading, setLoading]         = useState(false)
+  const [submitError, setSubmitError] = useState(null)
+  const [activeNav, setActiveNav]     = useState('cases')
   const [sidebarOpen, setSidebarOpen] = useState(true)
 
   const { agentEvents, awaitingApproval, done, error, approve } = useAgentStream(threadId)
@@ -27,14 +28,21 @@ export default function Dashboard() {
 
   const handleSubmit = async (body) => {
     setLoading(true)
+    setSubmitError(null)
     try {
       const res = await fetch(`${API_URL}/cases/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.detail || `Server error ${res.status}`)
+      }
       const data = await res.json()
       setThreadId(data.thread_id)
+    } catch (e) {
+      setSubmitError(e.message)
     } finally {
       setLoading(false)
     }
@@ -155,6 +163,12 @@ export default function Dashboard() {
               </div>
 
               <CaseInput onSubmit={handleSubmit} loading={loading} />
+
+              {submitError && (
+                <div className="mt-3 flex items-start gap-2 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-xs">
+                  <span className="font-semibold">Error:</span> {submitError}
+                </div>
+              )}
 
               {/* How it works */}
               <div className="mt-8 grid grid-cols-3 gap-4">

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
 from pydantic import BaseModel
 import uuid
+import asyncio
 
 from graph.builder import build_graph
 from graph.state import AgentState
@@ -12,6 +13,10 @@ from guardrails.audit_logger import log_case_submitted, log_case_rejected
 
 router = APIRouter()
 
+# In-memory store: thread_id -> initial AgentState
+# The stream endpoint picks this up and runs the graph while streaming events
+_pending: dict[str, AgentState] = {}
+
 
 class CaseRequest(BaseModel):
     patient_id: str
@@ -20,20 +25,20 @@ class CaseRequest(BaseModel):
 
 @router.post("/")
 async def submit_case(body: CaseRequest, request: Request):
-    # 1. Rate limiting — checked before anything else
+    # 1. Rate limiting
     check_rate_limit(request)
 
-    # 2. Deterministic input validation — no AI called if this fails
+    # 2. Input validation
     try:
         validate_case_input(body.patient_id, body.raw_note)
     except HTTPException as exc:
         log_case_rejected(body.patient_id, exc.detail)
         raise
 
-    # 3. Emergency detection — deterministic keyword scan, runs in microseconds
+    # 3. Emergency detection (deterministic, microseconds)
     emergency_flags = detect_emergencies(body.raw_note)
 
-    # 4. Audit: record submission (hashed PII, no raw note content)
+    # 4. Audit log
     thread_id = str(uuid.uuid4())
     log_case_submitted(
         patient_id=body.patient_id,
@@ -42,15 +47,12 @@ async def submit_case(body: CaseRequest, request: Request):
         emergency_flags=emergency_flags,
     )
 
-    # 5. Build graph and set initial state
-    checkpointer = request.app.state.checkpointer
-    graph = build_graph(checkpointer)
-
-    initial_state: AgentState = {
+    # 5. Store initial state — the stream endpoint runs the graph so events
+    #    are visible in the UI as each agent completes
+    _pending[thread_id] = {
         "thread_id": thread_id,
         "patient_id": body.patient_id,
         "raw_note": body.raw_note,
-        # Guardrail outputs pre-populated so agents can read them
         "emergency_flags": emergency_flags,
         "guardrail_warnings": [],
         "intake_payload": None,
@@ -68,20 +70,15 @@ async def submit_case(body: CaseRequest, request: Request):
         "messages": [],
     }
 
-    config = {"configurable": {"thread_id": thread_id}}
-
-    try:
-        await graph.ainvoke(initial_state, config=config)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
     return {
         "thread_id": thread_id,
-        "status": "running",
-        # Return emergency flags immediately so the frontend can show them
-        # before the full AI pipeline completes
+        "status": "pending",
         "emergency_flags": emergency_flags,
     }
+
+
+def pop_pending(thread_id: str) -> AgentState | None:
+    return _pending.pop(thread_id, None)
 
 
 @router.get("/{thread_id}/state")
