@@ -1,10 +1,10 @@
 const AGENTS = [
-  { id: 'intake', label: 'Intake Parser', desc: 'Extracts patient demographics & chief complaint' },
-  { id: 'history', label: 'History Retrieval', desc: 'Pulls prior session records from memory' },
-  { id: 'research', label: 'Research RAG', desc: 'Searches clinical evidence database' },
-  { id: 'differential', label: 'Differential Dx', desc: 'Generates ranked diagnoses with confidence' },
-  { id: 'risk', label: 'Risk Assessment', desc: 'Flags critical patient risks' },
-  { id: 'summarizer', label: 'SOAP Summarizer', desc: 'Produces final structured SOAP note' },
+  { id: 'intake',       label: 'Intake Parser',      desc: 'Extracts patient demographics & chief complaint' },
+  { id: 'history',      label: 'History Retrieval',  desc: 'Pulls prior session records from memory' },
+  { id: 'research',     label: 'Research RAG',        desc: 'Searches clinical evidence database' },
+  { id: 'differential', label: 'Differential Dx',    desc: 'Generates ranked diagnoses with confidence' },
+  { id: 'risk',         label: 'Risk Assessment',    desc: 'Flags critical patient risks' },
+  { id: 'summarizer',   label: 'SOAP Summarizer',    desc: 'Produces final structured SOAP note' },
 ]
 
 export default function AgentStatusPanel({ agentEvents }) {
@@ -23,13 +23,20 @@ export default function AgentStatusPanel({ agentEvents }) {
       <div className="card-header">
         <div className="flex items-center justify-between mb-3">
           <p className="label-xs">Agent Pipeline</p>
-          <span className="text-xs font-semibold text-slate-400">{doneCount}/{AGENTS.length}</span>
+          <span className="text-xs font-semibold tabular-nums" style={{ color: doneCount > 0 ? '#818cf8' : '#52525b' }}>
+            {doneCount}/{AGENTS.length}
+          </span>
         </div>
         {/* Progress bar */}
-        <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+        <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-clinical-blue to-clinical-teal rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
+            className="h-full rounded-full transition-all duration-700"
+            style={{
+              width: `${progress}%`,
+              background: progress === 100
+                ? 'linear-gradient(90deg, #10b981, #34d399)'
+                : 'linear-gradient(90deg, #6366f1, #818cf8)',
+            }}
           />
         </div>
       </div>
@@ -40,25 +47,26 @@ export default function AgentStatusPanel({ agentEvents }) {
           const isLast = idx === AGENTS.length - 1
 
           return (
-            <div key={agent.id} className="relative">
+            <div key={agent.id} className="relative" style={{ animationDelay: `${idx * 60}ms` }}>
               {/* Connector line */}
               {!isLast && (
-                <div className={`absolute left-[11px] top-[26px] w-0.5 h-[calc(100%+4px)] rounded-full ${
-                  status === 'done' ? 'bg-clinical-teal/50' : 'bg-slate-800'
-                }`} />
+                <div
+                  className="absolute left-[11px] top-[26px] w-0.5 h-[calc(100%+4px)] rounded-full transition-colors duration-500"
+                  style={{ background: status === 'done' ? '#10b98133' : '#27272a' }}
+                />
               )}
 
               <div className={`relative flex items-start gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${
-                status === 'running' ? 'bg-clinical-blue/8 border border-clinical-blue/15' :
-                status === 'done' ? 'opacity-100' : 'opacity-50'
+                status === 'running' ? 'bg-indigo-500/8 border border-indigo-500/15' :
+                status === 'done' ? '' : 'opacity-40'
               }`}>
                 {/* Status dot */}
-                <div className={`mt-0.5 w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all ${
+                <div className={`mt-0.5 w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center border-2 transition-all duration-300 ${
                   status === 'done'
-                    ? 'bg-clinical-teal border-clinical-teal shadow-sm shadow-teal-900/50'
+                    ? 'border-emerald-500 bg-emerald-500 shadow-[0_0_8px_#10b98140]'
                     : status === 'running'
-                    ? 'bg-clinical-blue/20 border-clinical-blue animate-pulse-slow'
-                    : 'bg-navy-900 border-slate-700'
+                    ? 'border-indigo-400 bg-indigo-400/20'
+                    : 'border-zinc-700 bg-zinc-900'
                 }`}>
                   {status === 'done' && (
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
@@ -66,27 +74,27 @@ export default function AgentStatusPanel({ agentEvents }) {
                     </svg>
                   )}
                   {status === 'running' && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-clinical-blue" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
                   )}
                 </div>
 
-                <div className="min-w-0">
+                <div className="min-w-0 flex-1">
                   <p className={`text-sm font-medium leading-none mb-0.5 ${
-                    status === 'done' ? 'text-slate-200' :
+                    status === 'done' ? 'text-zinc-200' :
                     status === 'running' ? 'text-white' :
-                    'text-slate-600'
+                    'text-zinc-600'
                   }`}>
                     {agent.label}
                   </p>
                   <p className={`text-xs leading-relaxed ${
-                    status === 'running' ? 'text-slate-400' : 'text-slate-700'
+                    status === 'running' ? 'text-indigo-400/70' : 'text-zinc-700'
                   }`}>
                     {status === 'running' ? 'Running…' : agent.desc}
                   </p>
                 </div>
 
                 {status === 'done' && (
-                  <span className="ml-auto text-xs text-clinical-teal font-medium flex-shrink-0">✓</span>
+                  <span className="ml-auto text-xs text-emerald-500 font-bold flex-shrink-0">✓</span>
                 )}
               </div>
             </div>

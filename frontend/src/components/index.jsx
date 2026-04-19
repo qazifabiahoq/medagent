@@ -55,7 +55,6 @@ export function CaseInput({ onSubmit, loading }) {
   }
 
   const loadDemo = (demo, e) => {
-    // Walk up to the parent form and set uncontrolled input values
     const form = e.currentTarget.closest('form')
     form.querySelector('input[name="patient_id"]').value = demo.patient_id
     form.querySelector('textarea[name="raw_note"]').value = demo.note
@@ -64,41 +63,41 @@ export function CaseInput({ onSubmit, loading }) {
   return (
     <form onSubmit={handleSubmit} className="card p-6 space-y-5">
       <div className="flex items-center gap-3 mb-1">
-        <div className="w-8 h-8 rounded-lg bg-clinical-blue/15 border border-clinical-blue/20 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <rect x="1" y="1" width="12" height="12" rx="2" stroke="#3b82f6" strokeWidth="1.3"/>
-            <path d="M4 5h6M4 7.5h6M4 10h4" stroke="#3b82f6" strokeWidth="1.3" strokeLinecap="round"/>
+            <rect x="1" y="1" width="12" height="12" rx="2" stroke="#818cf8" strokeWidth="1.3"/>
+            <path d="M4 5h6M4 7.5h6M4 10h4" stroke="#818cf8" strokeWidth="1.3" strokeLinecap="round"/>
           </svg>
         </div>
         <div>
           <p className="text-sm font-semibold text-white">Patient intake</p>
-          <p className="text-xs text-slate-500">Enter patient details and clinical note</p>
+          <p className="text-xs text-zinc-500">Enter patient details and clinical note</p>
         </div>
       </div>
 
       {/* Demo scenario loader */}
       <div>
-        <p className="text-xs font-semibold text-slate-500 mb-2">Load demo scenario</p>
+        <p className="text-xs font-semibold text-zinc-500 mb-2">Load demo scenario</p>
         <div className="flex gap-2 flex-wrap">
           {DEMO_CASES.map((demo) => (
             <button
               key={demo.label}
               type="button"
               onClick={(e) => loadDemo(demo, e)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-600 transition-all"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white border border-zinc-700 hover:border-indigo-500/40 transition-all duration-150"
             >
               {demo.label}
             </button>
           ))}
         </div>
-        <p className="text-xs text-slate-700 mt-1.5">
+        <p className="text-xs text-zinc-700 mt-1.5">
           Click a scenario to pre-fill the form with a realistic clinical note
         </p>
       </div>
 
       <div className="space-y-4">
         <div>
-          <label className="block text-xs font-semibold text-slate-400 mb-2">
+          <label className="block text-xs font-semibold text-zinc-400 mb-2">
             Patient ID <span className="text-red-500">*</span>
           </label>
           <input
@@ -110,7 +109,7 @@ export function CaseInput({ onSubmit, loading }) {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-400 mb-2">
+          <label className="block text-xs font-semibold text-zinc-400 mb-2">
             Unstructured clinical note <span className="text-red-500">*</span>
           </label>
           <textarea
@@ -120,7 +119,7 @@ export function CaseInput({ onSubmit, loading }) {
             className="input-field resize-none leading-relaxed"
             placeholder="Paste the raw clinical note here… or load a demo scenario above."
           />
-          <p className="text-xs text-slate-700 mt-1.5">Free text, structured notes, or discharge summaries — any format accepted</p>
+          <p className="text-xs text-zinc-700 mt-1.5">Free text, structured notes, or discharge summaries - any format accepted</p>
         </div>
       </div>
 
@@ -149,11 +148,11 @@ export function CaseInput({ onSubmit, loading }) {
 export function ApprovalGate({ onApprove }) {
   return (
     <div className="card border-amber-800/50 overflow-hidden animate-slide-up">
-      <div className="h-1 bg-gradient-to-r from-amber-500 to-amber-600" />
+      <div className="h-0.5 bg-gradient-to-r from-amber-500 to-orange-500" />
 
       <div className="p-6">
         <div className="flex items-start gap-3 mb-5">
-          <div className="w-9 h-9 rounded-xl bg-amber-900/40 border border-amber-800/50 flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-amber-900/30 border border-amber-800/50 flex items-center justify-center flex-shrink-0">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M8 2L14.5 13H1.5L8 2Z" stroke="#f59e0b" strokeWidth="1.4" strokeLinejoin="round"/>
               <path d="M8 6.5v3M8 11v.5" stroke="#f59e0b" strokeWidth="1.4" strokeLinecap="round"/>
@@ -161,7 +160,7 @@ export function ApprovalGate({ onApprove }) {
           </div>
           <div>
             <p className="text-sm font-bold text-amber-400">Clinician Review Required</p>
-            <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+            <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">
               The AI has completed its analysis. Please review the differential diagnosis and risk flags before authorising the final SOAP note. No note is generated without your approval.
             </p>
           </div>
@@ -171,7 +170,7 @@ export function ApprovalGate({ onApprove }) {
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
             <path d="M2.5 7.5L5.5 10.5L11.5 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          Approve & Generate SOAP Note
+          Approve &amp; Generate SOAP Note
         </button>
       </div>
     </div>
@@ -184,33 +183,37 @@ const SOAP_SECTIONS = [
     key: 'subjective',
     label: 'Subjective',
     abbr: 'S',
-    color: 'text-clinical-blue-light',
-    bg: 'bg-clinical-blue/10',
-    border: 'border-clinical-blue/20',
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/8',
+    border: 'border-indigo-500/15',
+    accent: '#6366f1',
   },
   {
     key: 'objective',
     label: 'Objective',
     abbr: 'O',
-    color: 'text-purple-400',
-    bg: 'bg-purple-900/20',
-    border: 'border-purple-800/30',
+    color: 'text-violet-400',
+    bg: 'bg-violet-500/8',
+    border: 'border-violet-500/15',
+    accent: '#8b5cf6',
   },
   {
     key: 'assessment',
     label: 'Assessment',
     abbr: 'A',
     color: 'text-amber-400',
-    bg: 'bg-amber-900/20',
-    border: 'border-amber-800/30',
+    bg: 'bg-amber-500/8',
+    border: 'border-amber-500/15',
+    accent: '#f59e0b',
   },
   {
     key: 'plan',
     label: 'Plan',
     abbr: 'P',
-    color: 'text-clinical-teal',
-    bg: 'bg-clinical-teal/10',
-    border: 'border-clinical-teal/20',
+    color: 'text-emerald-400',
+    bg: 'bg-emerald-500/8',
+    border: 'border-emerald-500/15',
+    accent: '#10b981',
   },
 ]
 
@@ -219,37 +222,44 @@ export function SOAPOutput({ soapNote }) {
 
   return (
     <div className="card overflow-hidden animate-slide-up">
-      <div className="h-1 bg-gradient-to-r from-clinical-teal to-clinical-blue" />
+      <div className="h-0.5 bg-gradient-to-r from-indigo-500 via-violet-500 to-emerald-500" />
 
       <div className="card-header flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-clinical-teal/15 border border-clinical-teal/20 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#0d9488" strokeWidth="1.2"/>
-              <path d="M3 4h6M3 6h6M3 8h4" stroke="#0d9488" strokeWidth="1.2" strokeLinecap="round"/>
+              <rect x="1" y="1" width="10" height="10" rx="1.5" stroke="#10b981" strokeWidth="1.2"/>
+              <path d="M3 4h6M3 6h6M3 8h4" stroke="#10b981" strokeWidth="1.2" strokeLinecap="round"/>
             </svg>
           </div>
           <p className="text-sm font-semibold text-white">SOAP Note</p>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-clinical-teal" />
-          <span className="text-xs text-clinical-teal font-medium">AI Generated</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+          <span className="text-xs text-emerald-400 font-medium">AI Generated</span>
         </div>
       </div>
 
-      <div className="p-5 space-y-4">
-        {SOAP_SECTIONS.map(({ key, label, abbr, color, bg, border }) => {
+      <div className="p-5 space-y-3">
+        {SOAP_SECTIONS.map(({ key, label, abbr, color, bg, border, accent }, idx) => {
           const content = soapNote[key]
           if (!content) return null
           return (
-            <div key={key} className={`rounded-xl border p-4 ${bg} ${border}`}>
+            <div
+              key={key}
+              className={`rounded-xl border p-4 ${bg} ${border} animate-slide-up`}
+              style={{ animationDelay: `${idx * 80}ms` }}
+            >
               <div className="flex items-center gap-2 mb-2">
-                <span className={`text-xs font-bold ${color} w-5 h-5 rounded flex items-center justify-center ${bg} border ${border}`}>
+                <span
+                  className={`text-xs font-bold w-5 h-5 rounded flex items-center justify-center ${color}`}
+                  style={{ background: `${accent}18`, border: `1px solid ${accent}28` }}
+                >
                   {abbr}
                 </span>
                 <p className={`text-xs font-semibold uppercase tracking-wider ${color}`}>{label}</p>
               </div>
-              <p className="text-sm text-slate-200 leading-relaxed">{content}</p>
+              <p className="text-sm text-zinc-200 leading-relaxed">{content}</p>
             </div>
           )
         })}
@@ -257,9 +267,9 @@ export function SOAPOutput({ soapNote }) {
 
       {/* Mandatory AI disclaimer */}
       <div className="px-5 pb-5">
-        <div className="rounded-lg bg-slate-800/60 border border-slate-700/60 p-3">
-          <p className="text-xs text-slate-500 leading-relaxed">
-            <span className="text-amber-500 font-semibold">⚠ Advisory only.</span>{' '}
+        <div className="rounded-lg bg-zinc-800/50 border border-zinc-700/50 p-3">
+          <p className="text-xs text-zinc-500 leading-relaxed">
+            <span className="text-amber-500 font-semibold">Advisory only.</span>{' '}
             AI-generated output for clinical decision support. Not a substitute for professional clinical judgment.
             Must be reviewed and validated by a licensed clinician before any action is taken.
           </p>

@@ -6,7 +6,6 @@ import { useAgentStream } from '../hooks/useAgentStream.js'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
-// Sidebar nav items
 const NAV_ITEMS = [
   { id: 'cases', label: 'Cases', icon: CasesIcon },
   { id: 'history', label: 'Patient History', icon: HistoryIcon },
@@ -41,9 +40,7 @@ export default function Dashboard() {
     }
   }
 
-  const handleNewCase = () => {
-    setThreadId(null)
-  }
+  const handleNewCase = () => setThreadId(null)
 
   const differential = getDoneOutput('differential')?.differential
   const riskFlags = getDoneOutput('risk')?.risk_flags
@@ -52,21 +49,24 @@ export default function Dashboard() {
   const isProcessing = threadId && !done && !awaitingApproval
 
   return (
-    <div className="flex h-screen overflow-hidden bg-navy-950">
+    <div className="flex h-screen overflow-hidden" style={{ background: '#09090b' }}>
       {/* Sidebar */}
-      <aside className={`flex flex-col transition-all duration-200 border-r border-slate-800/60 bg-navy-900 ${sidebarOpen ? 'w-56' : 'w-16'}`}>
+      <aside className={`flex flex-col transition-all duration-300 border-r border-zinc-800/60 bg-zinc-950 ${sidebarOpen ? 'w-56' : 'w-16'}`}>
         {/* Logo */}
-        <div className={`flex items-center gap-3 px-4 py-5 border-b border-slate-800/60 ${!sidebarOpen && 'justify-center'}`}>
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-clinical-blue to-clinical-teal flex items-center justify-center flex-shrink-0 glow-blue">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1.5V14.5M1.5 8H14.5" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
-              <path d="M4 4.5L12 11.5M12 4.5L4 11.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.5"/>
-            </svg>
+        <div className={`flex items-center gap-3 px-4 py-5 border-b border-zinc-800/60 ${!sidebarOpen && 'justify-center'}`}>
+          <div className="relative w-8 h-8 flex-shrink-0">
+            <div className="absolute inset-0 rounded-xl bg-indigo-600 blur-md opacity-50" />
+            <div className="relative w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 2V14M2 8H14" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+                <path d="M4.5 4.5L11.5 11.5M11.5 4.5L4.5 11.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.5"/>
+              </svg>
+            </div>
           </div>
           {sidebarOpen && (
             <div>
-              <p className="text-sm font-bold text-white leading-none">MedAgent</p>
-              <p className="text-xs text-slate-500 mt-0.5">Clinical AI</p>
+              <p className="text-sm font-bold text-white leading-none tracking-tight">MedAgent</p>
+              <p className="text-xs text-zinc-500 mt-0.5">Clinical AI</p>
             </div>
           )}
         </div>
@@ -79,8 +79,8 @@ export default function Dashboard() {
               onClick={() => setActiveNav(id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150
                 ${activeNav === id
-                  ? 'bg-clinical-blue/15 text-clinical-blue-light border border-clinical-blue/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+                  ? 'bg-indigo-600/15 text-indigo-400 border border-indigo-500/20'
+                  : 'text-zinc-500 hover:text-zinc-200 hover:bg-zinc-800/60'
                 } ${!sidebarOpen && 'justify-center'}`}
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
@@ -92,7 +92,7 @@ export default function Dashboard() {
         {/* Collapse toggle */}
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="mx-2 mb-4 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-slate-600 hover:text-slate-400 hover:bg-slate-800/60 transition-all text-xs"
+          className="mx-2 mb-4 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-zinc-600 hover:text-zinc-400 hover:bg-zinc-800/60 transition-all text-xs"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
             <path d={sidebarOpen ? 'M9 7L5 3M9 7L5 11' : 'M5 7L9 3M5 7L9 11'} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
@@ -104,12 +104,12 @@ export default function Dashboard() {
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="flex items-center justify-between px-6 py-4 border-b border-slate-800/60 bg-navy-900/80 backdrop-blur-sm flex-shrink-0">
+        <header className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/60 bg-zinc-950/80 backdrop-blur-sm flex-shrink-0">
           <div>
-            <h1 className="text-base font-semibold text-white">
+            <h1 className="text-base font-semibold text-white tracking-tight">
               {activeNav === 'cases' ? 'Clinical Cases' : activeNav === 'history' ? 'Patient History' : 'Analytics'}
             </h1>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-zinc-500 mt-0.5">
               {threadId ? `Thread: ${threadId.slice(0, 8)}…` : 'Submit a clinical note to begin AI analysis'}
             </p>
           </div>
@@ -118,7 +118,7 @@ export default function Dashboard() {
             {threadId && (
               <button
                 onClick={handleNewCase}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-700 transition-all"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-white hover:bg-zinc-800 border border-zinc-700 transition-all duration-150"
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                   <path d="M6 1v10M1 6h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -127,17 +127,17 @@ export default function Dashboard() {
               </button>
             )}
             {/* Status badge */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border ${
-              done ? 'bg-clinical-teal/10 text-clinical-teal border-clinical-teal/20' :
-              isProcessing ? 'bg-clinical-blue/10 text-clinical-blue-light border-clinical-blue/20' :
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-300 ${
+              done ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
+              isProcessing ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' :
               awaitingApproval ? 'bg-amber-900/30 text-amber-400 border-amber-800/40' :
-              'bg-slate-800 text-slate-500 border-slate-700'
+              'bg-zinc-800 text-zinc-500 border-zinc-700'
             }`}>
               <span className={`w-1.5 h-1.5 rounded-full ${
-                done ? 'bg-clinical-teal' :
-                isProcessing ? 'bg-clinical-blue animate-pulse' :
+                done ? 'bg-emerald-400' :
+                isProcessing ? 'bg-indigo-400 animate-pulse' :
                 awaitingApproval ? 'bg-amber-400 animate-pulse' :
-                'bg-slate-600'
+                'bg-zinc-600'
               }`} />
               {done ? 'Complete' : isProcessing ? 'Processing' : awaitingApproval ? 'Awaiting approval' : 'Idle'}
             </div>
@@ -147,48 +147,45 @@ export default function Dashboard() {
         {/* Content area */}
         <main className="flex-1 overflow-auto p-6">
           {!threadId ? (
-            /* New case — centered form */
             <div className="max-w-2xl mx-auto animate-slide-up">
               <div className="mb-8 text-center">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-clinical-blue/20 to-clinical-teal/20 border border-slate-700 mb-4">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 mb-4">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 3v18M3 12h18" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"/>
+                    <path d="M12 3v18M3 12h18" stroke="#818cf8" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                 </div>
-                <h2 className="text-xl font-bold text-white">New Clinical Case</h2>
-                <p className="text-sm text-slate-500 mt-1">Paste an unstructured clinical note and let the AI agents analyse it end-to-end</p>
+                <h2 className="text-xl font-bold text-white tracking-tight">New Clinical Case</h2>
+                <p className="text-sm text-zinc-500 mt-1">Paste an unstructured clinical note and let the AI agents analyse it end-to-end</p>
               </div>
               <CaseInput onSubmit={handleSubmit} loading={loading} />
 
               {/* How it works */}
               <div className="mt-8 grid grid-cols-3 gap-4">
                 {[
-                  { step: '01', title: 'Parse & Structure', desc: 'Intake agent extracts demographics and chief complaint' },
-                  { step: '02', title: 'Research & History', desc: 'Parallel RAG agents pull evidence and patient records' },
-                  { step: '03', title: 'Review & Approve', desc: 'Clinician reviews differential before SOAP is generated' },
-                ].map(({ step, title, desc }) => (
-                  <div key={step} className="card p-4">
-                    <p className="text-xs font-bold text-clinical-blue mb-2">{step}</p>
-                    <p className="text-sm font-semibold text-slate-200 mb-1">{title}</p>
-                    <p className="text-xs text-slate-500 leading-relaxed">{desc}</p>
+                  { step: '01', title: 'Parse & Structure', desc: 'Intake agent extracts demographics and chief complaint', color: 'text-indigo-400' },
+                  { step: '02', title: 'Research & History', desc: 'Parallel RAG agents pull evidence and patient records', color: 'text-violet-400' },
+                  { step: '03', title: 'Review & Approve', desc: 'Clinician reviews differential before SOAP is generated', color: 'text-emerald-400' },
+                ].map(({ step, title, desc, color }) => (
+                  <div key={step} className="card p-4 hover:border-zinc-700 transition-all duration-200 group">
+                    <p className={`text-xs font-bold ${color} mb-2 group-hover:opacity-100`}>{step}</p>
+                    <p className="text-sm font-semibold text-zinc-200 mb-1">{title}</p>
+                    <p className="text-xs text-zinc-500 leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            /* Active case — 3 column layout */
             <div className="grid grid-cols-12 gap-5 h-full animate-fade-in">
               {/* Left: Pipeline */}
               <div className="col-span-3 space-y-5">
                 <AgentStatusPanel agentEvents={agentEvents} />
-
                 {error && (
-                  <div className="card p-4 border-red-900">
+                  <div className="card p-4 border-red-900/60">
                     <div className="flex items-start gap-3">
                       <span className="text-red-400 mt-0.5">⚠</span>
                       <div>
                         <p className="text-xs font-semibold text-red-400 mb-1">Stream error</p>
-                        <p className="text-xs text-slate-400">{error}</p>
+                        <p className="text-xs text-zinc-400">{error}</p>
                       </div>
                     </div>
                   </div>
@@ -200,25 +197,19 @@ export default function Dashboard() {
                 {differential && (
                   <DifferentialPanel differential={differential} riskFlags={riskFlags} />
                 )}
-
                 {awaitingApproval && (
-                  <ApprovalGate
-                    onApprove={approve}
-                    differential={differential}
-                    riskFlags={riskFlags}
-                  />
+                  <ApprovalGate onApprove={approve} differential={differential} riskFlags={riskFlags} />
                 )}
-
                 {!differential && !awaitingApproval && (
                   <div className="card p-8 text-center">
-                    <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-3">
+                    <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center mx-auto mb-3">
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                        <circle cx="9" cy="9" r="7" stroke="#475569" strokeWidth="1.5"/>
-                        <path d="M9 6v4M9 12v.5" stroke="#475569" strokeWidth="1.5" strokeLinecap="round"/>
+                        <circle cx="9" cy="9" r="7" stroke="#52525b" strokeWidth="1.5"/>
+                        <path d="M9 6v4M9 12v.5" stroke="#52525b" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
                     </div>
-                    <p className="text-sm font-medium text-slate-400">Analysing clinical data…</p>
-                    <p className="text-xs text-slate-600 mt-1">Differential diagnosis will appear here</p>
+                    <p className="text-sm font-medium text-zinc-400">Analysing clinical data…</p>
+                    <p className="text-xs text-zinc-600 mt-1">Differential diagnosis will appear here</p>
                   </div>
                 )}
               </div>
@@ -229,14 +220,14 @@ export default function Dashboard() {
                   <SOAPOutput soapNote={soapNote} />
                 ) : (
                   <div className="card p-8 text-center h-full flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 rounded-2xl bg-slate-800 flex items-center justify-center mx-auto mb-3">
+                    <div className="w-12 h-12 rounded-2xl bg-zinc-800/60 flex items-center justify-center mx-auto mb-3">
                       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                        <rect x="3" y="2" width="14" height="16" rx="2" stroke="#334155" strokeWidth="1.5"/>
-                        <path d="M7 7h6M7 10h6M7 13h4" stroke="#334155" strokeWidth="1.5" strokeLinecap="round"/>
+                        <rect x="3" y="2" width="14" height="16" rx="2" stroke="#3f3f46" strokeWidth="1.5"/>
+                        <path d="M7 7h6M7 10h6M7 13h4" stroke="#3f3f46" strokeWidth="1.5" strokeLinecap="round"/>
                       </svg>
                     </div>
-                    <p className="text-sm font-medium text-slate-500">SOAP note</p>
-                    <p className="text-xs text-slate-700 mt-1">Generated after clinician approval</p>
+                    <p className="text-sm font-medium text-zinc-500">SOAP note</p>
+                    <p className="text-xs text-zinc-700 mt-1">Generated after clinician approval</p>
                   </div>
                 )}
               </div>
@@ -248,7 +239,6 @@ export default function Dashboard() {
   )
 }
 
-// Icon components
 function CasesIcon({ className }) {
   return (
     <svg className={className} viewBox="0 0 16 16" fill="none">
