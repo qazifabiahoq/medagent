@@ -1,17 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 import os
 
 from graph.checkpointer import create_checkpointer
 from api.routes import cases, stream, approve, history
-
-checkpointer = None
+from api.middleware import RequestLoggingMiddleware
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global checkpointer
     postgres_url = os.getenv("POSTGRES_URL", "postgresql://medagent:medagent@postgres:5432/medagent")
     checkpointer = await create_checkpointer(postgres_url)
     app.state.checkpointer = checkpointer
@@ -22,7 +21,14 @@ async def lifespan(app: FastAPI):
         pass
 
 
-app = FastAPI(title="MedAgent API", version="0.1.0", lifespan=lifespan)
+app = FastAPI(
+    title="MedAgent API",
+    version="1.0.0",
+    description="Clinical Intelligence Platform — multi-agent AI for structured SOAP note generation",
+    lifespan=lifespan,
+)
+
+app.add_middleware(RequestLoggingMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,6 +44,10 @@ app.include_router(approve.router, prefix="/approve", tags=["approve"])
 app.include_router(history.router, prefix="/history", tags=["history"])
 
 
-@app.get("/health")
+@app.get("/health", tags=["system"])
 async def health():
-    return {"status": "ok"}
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "version": "1.0.0",
+    }

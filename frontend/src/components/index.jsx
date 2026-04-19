@@ -1,3 +1,48 @@
+// ─── Demo scenarios ───────────────────────────────────────────────────────────
+const DEMO_CASES = [
+  {
+    label: 'Chest Pain',
+    patient_id: 'PT-DEMO-001',
+    note: `62-year-old male presenting to ED with 45-minute history of central chest pain radiating to left arm and jaw. Pain is pressure-like, 8/10 severity. Associated with diaphoresis and nausea. No vomiting. PMH: hypertension, type 2 diabetes mellitus (on metformin 1g BD, lisinopril 10mg OD). Smokes 20 cigarettes/day for 35 years. FH: father died of MI aged 58.
+
+Vitals on arrival: BP 158/94 mmHg, HR 98 bpm, RR 18/min, Temp 36.8°C, SpO2 97% on room air.
+
+ECG: ST elevation in leads II, III, aVF consistent with inferior STEMI. Troponin I pending.
+
+Allergies: Aspirin (rash — given in 2019, developed urticaria). No known drug allergies otherwise.
+
+Current medications: Metformin 1g BD, Lisinopril 10mg OD, Atorvastatin 40mg nocte.`,
+  },
+  {
+    label: 'Pneumonia',
+    patient_id: 'PT-DEMO-002',
+    note: `45-year-old female presenting with 5-day history of productive cough with yellow-green sputum, fever up to 39.2°C, right-sided pleuritic chest pain, and progressive dyspnea. Reports rigors on day 2. No hemoptysis.
+
+PMH: Type 2 diabetes (HbA1c 8.9% last month), no prior respiratory admissions.
+Medications: Metformin 500mg BD, Glipizide 5mg OD.
+Allergies: Penicillin (anaphylaxis — documented in 2018).
+
+Vitals: Temp 38.9°C, BP 122/78 mmHg, HR 104 bpm, RR 24/min, SpO2 94% on room air.
+
+Examination: Dull to percussion right lower zone, bronchial breath sounds right base, increased vocal fremitus.
+
+CXR: Right lower lobe consolidation. WBC 16.2 × 10⁹/L with left shift. CRP 187 mg/L.`,
+  },
+  {
+    label: 'Pediatric Asthma',
+    patient_id: 'PT-DEMO-003',
+    note: `9-year-old male brought in by mother with 2-day history of worsening shortness of breath, wheeze, and dry cough. Symptoms started after visiting a friend's house with cats. Using salbutamol inhaler (prescribed 6 months ago) 6 times today with minimal relief.
+
+PMH: Asthma diagnosed age 5, eczema. No prior hospital admissions for asthma. No ICU history.
+Medications: Salbutamol 100mcg PRN (MDI), Fluticasone 50mcg BD (MDI).
+Allergies: None known.
+
+Vitals: Temp 37.1°C, HR 118 bpm, RR 32/min, SpO2 91% on room air.
+
+Examination: Audible wheeze bilaterally, accessory muscle use, subcostal recession, speaking in short sentences. Peak flow 40% predicted. No cyanosis.`,
+  },
+]
+
 // ─── CaseInput ───────────────────────────────────────────────────────────────
 export function CaseInput({ onSubmit, loading }) {
   const handleSubmit = (e) => {
@@ -7,6 +52,13 @@ export function CaseInput({ onSubmit, loading }) {
       patient_id: form.patient_id.value,
       raw_note: form.raw_note.value,
     })
+  }
+
+  const loadDemo = (demo, e) => {
+    // Walk up to the parent form and set uncontrolled input values
+    const form = e.currentTarget.closest('form')
+    form.querySelector('input[name="patient_id"]').value = demo.patient_id
+    form.querySelector('textarea[name="raw_note"]').value = demo.note
   }
 
   return (
@@ -22,6 +74,26 @@ export function CaseInput({ onSubmit, loading }) {
           <p className="text-sm font-semibold text-white">Patient intake</p>
           <p className="text-xs text-slate-500">Enter patient details and clinical note</p>
         </div>
+      </div>
+
+      {/* Demo scenario loader */}
+      <div>
+        <p className="text-xs font-semibold text-slate-500 mb-2">Load demo scenario</p>
+        <div className="flex gap-2 flex-wrap">
+          {DEMO_CASES.map((demo) => (
+            <button
+              key={demo.label}
+              type="button"
+              onClick={(e) => loadDemo(demo, e)}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 hover:border-slate-600 transition-all"
+            >
+              {demo.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-slate-700 mt-1.5">
+          Click a scenario to pre-fill the form with a realistic clinical note
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -44,9 +116,9 @@ export function CaseInput({ onSubmit, loading }) {
           <textarea
             name="raw_note"
             required
-            rows={8}
+            rows={9}
             className="input-field resize-none leading-relaxed"
-            placeholder="Paste the raw clinical note here…&#10;&#10;Example: 45-year-old male presenting with 3-day history of productive cough, fever 38.9°C, and right-sided chest pain. Hx of type 2 diabetes. SpO2 94% on room air…"
+            placeholder="Paste the raw clinical note here… or load a demo scenario above."
           />
           <p className="text-xs text-slate-700 mt-1.5">Free text, structured notes, or discharge summaries — any format accepted</p>
         </div>
@@ -77,7 +149,6 @@ export function CaseInput({ onSubmit, loading }) {
 export function ApprovalGate({ onApprove }) {
   return (
     <div className="card border-amber-800/50 overflow-hidden animate-slide-up">
-      {/* Amber top strip */}
       <div className="h-1 bg-gradient-to-r from-amber-500 to-amber-600" />
 
       <div className="p-6">
@@ -91,7 +162,7 @@ export function ApprovalGate({ onApprove }) {
           <div>
             <p className="text-sm font-bold text-amber-400">Clinician Review Required</p>
             <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
-              The AI has completed its analysis. Please review the differential diagnosis and risk flags before authorising the final SOAP note.
+              The AI has completed its analysis. Please review the differential diagnosis and risk flags before authorising the final SOAP note. No note is generated without your approval.
             </p>
           </div>
         </div>
@@ -148,7 +219,6 @@ export function SOAPOutput({ soapNote }) {
 
   return (
     <div className="card overflow-hidden animate-slide-up">
-      {/* Teal top strip */}
       <div className="h-1 bg-gradient-to-r from-clinical-teal to-clinical-blue" />
 
       <div className="card-header flex items-center justify-between">
@@ -185,15 +255,15 @@ export function SOAPOutput({ soapNote }) {
         })}
       </div>
 
-      {/* Footer */}
-      <div className="px-5 pb-4 flex items-center justify-between">
-        <p className="text-xs text-slate-700">Generated by MedAgent AI · For clinical review only</p>
-        <button className="text-xs text-slate-500 hover:text-slate-300 transition-colors flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M2 2h8v8H2zM4 5h4M4 7h2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-          </svg>
-          Export
-        </button>
+      {/* Mandatory AI disclaimer */}
+      <div className="px-5 pb-5">
+        <div className="rounded-lg bg-slate-800/60 border border-slate-700/60 p-3">
+          <p className="text-xs text-slate-500 leading-relaxed">
+            <span className="text-amber-500 font-semibold">⚠ Advisory only.</span>{' '}
+            AI-generated output for clinical decision support. Not a substitute for professional clinical judgment.
+            Must be reviewed and validated by a licensed clinician before any action is taken.
+          </p>
+        </div>
       </div>
     </div>
   )

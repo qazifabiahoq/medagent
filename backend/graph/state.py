@@ -16,6 +16,10 @@ class AgentState(TypedDict):
     # Input
     raw_note: str
 
+    # Guardrail outputs (set before AI pipeline starts)
+    emergency_flags: Optional[list]   # deterministic emergency detections
+    guardrail_warnings: Optional[list] # output validation warnings
+
     # Intake agent output
     intake_payload: Optional[dict]
 
@@ -29,7 +33,7 @@ class AgentState(TypedDict):
     differential: Optional[list]
     reflection_count: int
 
-    # Risk agent output
+    # Risk agent output (includes emergency_flags merged in)
     risk_flags: Optional[list]
 
     # Final output
