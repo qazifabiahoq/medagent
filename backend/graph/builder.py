@@ -11,6 +11,7 @@ from agents.research import research_node
 from agents.differential import differential_node
 from agents.risk import risk_node
 from agents.summarizer import summarizer_node
+from agents.department_router import department_router_node
 from memory.short_term import ShortTermMemory
 
 logger = logging.getLogger("medagent.graph")
@@ -48,8 +49,9 @@ def build_graph(checkpointer):
     graph.add_node("history",      _with_redis_persistence(history_node))
     graph.add_node("research",     _with_redis_persistence(research_node))
     graph.add_node("differential", _with_redis_persistence(differential_node))
-    graph.add_node("risk",         _with_redis_persistence(risk_node))
-    graph.add_node("summarizer",   _with_redis_persistence(summarizer_node))
+    graph.add_node("risk",              _with_redis_persistence(risk_node))
+    graph.add_node("department_router", department_router_node)
+    graph.add_node("summarizer",        _with_redis_persistence(summarizer_node))
 
     graph.set_entry_point("supervisor")
     graph.add_edge("supervisor", "intake")
@@ -70,10 +72,11 @@ def build_graph(checkpointer):
     })
 
     graph.add_conditional_edges("risk", route_after_risk, {
-        "summarizer": "summarizer",
+        "department_router": "department_router",
         "differential": "differential",
     })
 
+    graph.add_edge("department_router", "summarizer")
     graph.add_edge("summarizer", END)
 
     return graph.compile(checkpointer=checkpointer, interrupt_before=["summarizer"])

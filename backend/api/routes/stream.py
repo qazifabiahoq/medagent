@@ -6,7 +6,7 @@ import json
 
 router = APIRouter()
 
-AGENT_NAMES = {"intake", "history", "research", "differential", "risk", "summarizer"}
+AGENT_NAMES = {"intake", "history", "research", "differential", "risk", "department_router", "summarizer"}
 
 
 @router.get("/{thread_id}")

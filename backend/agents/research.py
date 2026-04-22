@@ -1,8 +1,7 @@
 import logging
-from langchain_huggingface import HuggingFaceEmbeddings
-import os
 from graph.state import AgentState
 from memory.long_term import LongTermMemory
+from memory.embedder import get_embedder
 
 logger = logging.getLogger("medagent.research")
 
@@ -19,10 +18,7 @@ async def research_node(state: AgentState) -> AgentState:
         return {**state, "evidence_chunks": [], "completed_agents": completed + ["research"]}
 
     try:
-        embedder = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2",
-        )
-        query_embedding = await embedder.aembed_query(query_text)
+        query_embedding = await get_embedder().aembed_query(query_text)
 
         memory = LongTermMemory()
         try:

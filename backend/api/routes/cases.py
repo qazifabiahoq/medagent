@@ -61,6 +61,7 @@ async def submit_case(body: CaseRequest, request: Request):
         "differential": None,
         "reflection_count": 0,
         "risk_flags": None,
+        "department_routing": None,
         "soap_note": None,
         "next_agent": None,
         "completed_agents": [],
