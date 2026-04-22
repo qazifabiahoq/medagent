@@ -40,6 +40,16 @@ export function useAgentStream(threadId) {
       es.close()
     })
 
+    es.addEventListener('error', (e) => {
+      try {
+        const data = JSON.parse(e.data)
+        setError(data.error || 'Agent pipeline error')
+      } catch {
+        setError('Agent pipeline error')
+      }
+      es.close()
+    })
+
     es.onerror = () => {
       setError('Stream connection lost')
       es.close()
