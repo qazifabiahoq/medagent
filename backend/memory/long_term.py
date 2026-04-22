@@ -26,19 +26,28 @@ class LongTermMemory:
         self._ensure_collections()
 
     def _ensure_collections(self):
-        existing = {c.name for c in self.client.get_collections().collections}
+        try:
+            existing = {c.name for c in self.client.get_collections().collections}
+        except Exception:
+            existing = set()
 
         if PATIENT_SESSION_COLLECTION not in existing:
-            self.client.create_collection(
-                collection_name=PATIENT_SESSION_COLLECTION,
-                vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
-            )
+            try:
+                self.client.create_collection(
+                    collection_name=PATIENT_SESSION_COLLECTION,
+                    vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
+                )
+            except Exception:
+                pass
 
         if EVIDENCE_CHUNK_COLLECTION not in existing:
-            self.client.create_collection(
-                collection_name=EVIDENCE_CHUNK_COLLECTION,
-                vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
-            )
+            try:
+                self.client.create_collection(
+                    collection_name=EVIDENCE_CHUNK_COLLECTION,
+                    vectors_config=VectorParams(size=VECTOR_SIZE, distance=Distance.COSINE),
+                )
+            except Exception:
+                pass
 
     def store_session(
         self,
