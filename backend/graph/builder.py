@@ -79,4 +79,9 @@ def build_graph(checkpointer):
     graph.add_edge("department_router", "summarizer")
     graph.add_edge("summarizer", END)
 
-    return graph.compile(checkpointer=checkpointer, interrupt_before=["summarizer"])
+    # interrupt_before requires a checkpointer to save/restore state.
+    # Without one, run straight through so the SOAP note is always generated.
+    return graph.compile(
+        checkpointer=checkpointer,
+        interrupt_before=["summarizer"] if checkpointer else [],
+    )

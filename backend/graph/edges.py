@@ -4,7 +4,9 @@ MAX_REFLECTIONS = 3
 
 
 def route_after_intake(state: AgentState) -> str:
-    if state.get("error") or not state.get("intake_payload"):
+    # intake_payload is always set now (fallback guaranteed); only hard-stop
+    # on an explicit error with no data at all
+    if state.get("error") and not state.get("intake_payload"):
         return "end"
     return "history"
 
