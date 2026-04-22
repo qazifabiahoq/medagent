@@ -36,6 +36,9 @@ class AgentState(TypedDict):
     # Risk agent output (includes emergency_flags merged in)
     risk_flags: Optional[list]
 
+    # Department routing (set after risk, before HITL approval)
+    department_routing: Optional[dict]
+
     # Final output
     soap_note: Optional[dict]
 

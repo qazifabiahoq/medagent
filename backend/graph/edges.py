@@ -4,7 +4,9 @@ MAX_REFLECTIONS = 3
 
 
 def route_after_intake(state: AgentState) -> str:
-    if state.get("error") or not state.get("intake_payload"):
+    # intake_payload is always set now (fallback guaranteed); only hard-stop
+    # on an explicit error with no data at all
+    if state.get("error") and not state.get("intake_payload"):
         return "end"
     return "history"
 
@@ -23,8 +25,7 @@ def route_after_differential(state: AgentState) -> str:
 
 def route_after_risk(state: AgentState) -> str:
     risk_flags = state.get("risk_flags", [])
-    # If critical flags exist, send back to differential with context
     critical = [f for f in risk_flags if f.get("severity") == "critical"]
     if critical:
         return "differential"
-    return "summarizer"
+    return "department_router"
