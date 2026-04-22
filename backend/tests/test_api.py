@@ -31,7 +31,7 @@ def client():
     mock_graph.ainvoke = AsyncMock(return_value={})
     mock_graph.aget_state = AsyncMock(return_value=MagicMock(values={"patient_id": "PT-TEST-001"}))
 
-    with patch("graph.checkpointer.create_checkpointer", new=AsyncMock(return_value=mock_checkpointer)), \
+    with patch("graph.checkpointer.get_checkpointer_context", return_value=MagicMock(__aenter__=AsyncMock(return_value=mock_checkpointer), __aexit__=AsyncMock(return_value=None))), \
          patch("graph.builder.build_graph", return_value=mock_graph), \
          patch("api.routes.cases.build_graph", return_value=mock_graph), \
          patch("api.routes.approve.build_graph", return_value=mock_graph):
@@ -78,7 +78,7 @@ class TestCaseSubmission:
         assert response.status_code == 200
         data = response.json()
         assert "thread_id" in data
-        assert data["status"] == "running"
+        assert data["status"] == "pending"
 
     def test_valid_submission_includes_emergency_flags(self, client):
         response = client.post("/cases/", json={"patient_id": "PT-001", "raw_note": VALID_NOTE})

@@ -4,11 +4,9 @@ MAX_REFLECTIONS = 3
 
 
 def route_after_intake(state: AgentState) -> str:
-    if state.get("error"):
-        return "error"
-    if state.get("intake_payload"):
-        return "parallel"
-    return "error"
+    if state.get("error") or not state.get("intake_payload"):
+        return "end"
+    return "history"
 
 
 def route_after_differential(state: AgentState) -> str:
