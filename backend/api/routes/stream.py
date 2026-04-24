@@ -18,22 +18,33 @@ async def stream_case(thread_id: str, request: Request):
         try:
             graph = build_graph(checkpointer)
             config = {"configurable": {"thread_id": thread_id}}
-            source = initial_state if initial_state is not None else None
 
-            async for event in graph.astream_events(source, config=config, version="v2"):
-                kind = event.get("event")
-                name = event.get("name", "")
+            # astream(stream_mode="updates") is the correct LangGraph 1.x API.
+            # It yields {node_name: state_update} for every node that runs —
+            # no event-name guessing needed.
+            async for chunk in graph.astream(
+                initial_state, config=config, stream_mode="updates"
+            ):
+                for node_name, update in chunk.items():
+                    if node_name.startswith("__"):
+                        continue  # skip internal LangGraph nodes
 
-                if kind == "on_chain_start" and name in AGENT_NAMES:
-                    yield f"event: agent_start\ndata: {json.dumps({'agent': name})}\n\n"
+                    if node_name in AGENT_NAMES:
+                        yield f"event: agent_start\ndata: {json.dumps({'agent': node_name})}\n\n"
+                        yield (
+                            f"event: agent_done\n"
+                            f"data: {json.dumps({'agent': node_name, 'output': update}, default=str)}\n\n"
+                        )
 
-                elif kind == "on_chain_end" and name in AGENT_NAMES:
-                    output = event.get("data", {}).get("output", {})
-                    yield f"event: agent_done\ndata: {json.dumps({'agent': name, 'output': output})}\n\n"
-
-                elif kind == "on_chain_end" and name == "__interrupt__":
-                    yield f"event: awaiting_approval\ndata: {json.dumps({'thread_id': thread_id})}\n\n"
-                    return
+            # After the stream ends, check if the graph paused at an interrupt
+            if checkpointer:
+                try:
+                    snapshot = await graph.aget_state(config)
+                    if snapshot and snapshot.next:
+                        yield f"event: awaiting_approval\ndata: {json.dumps({'thread_id': thread_id})}\n\n"
+                        return
+                except Exception:
+                    pass
 
             yield f"event: done\ndata: {json.dumps({'thread_id': thread_id})}\n\n"
 

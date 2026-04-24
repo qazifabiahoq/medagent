@@ -1,21 +1,35 @@
 import logging
 from graph.state import AgentState
-from memory.long_term import LongTermMemory
-from memory.embedder import get_embedder
 
 logger = logging.getLogger("medagent.history")
 
 
 async def history_node(state: AgentState) -> AgentState:
-    patient_id = state["patient_id"]
-    intake_payload = state.get("intake_payload", {})
-    history_flags = intake_payload.get("history_flags", [])
-    query_text = " ".join(history_flags) if history_flags else patient_id
-
+    """
+    History agent. Queries Qdrant for prior patient sessions.
+    Returns empty list when Qdrant/embeddings unavailable — pipeline continues.
+    """
     completed = state.get("completed_agents", [])
+    prior_sessions = []
 
     try:
-        query_embedding = await get_embedder().aembed_query(query_text)
+        from memory.long_term import LongTermMemory
+        import os
+
+        patient_id = state["patient_id"]
+        intake_payload = state.get("intake_payload") or {}
+        history_flags = intake_payload.get("history_flags", [])
+        query_text = " ".join(history_flags) if history_flags else patient_id
+
+        if not os.getenv("QDRANT_URL") or not os.getenv("HUGGINGFACE_API_TOKEN"):
+            raise ValueError("Qdrant/HuggingFace not configured")
+
+        from langchain_huggingface import HuggingFaceEndpointEmbeddings
+        embedder = HuggingFaceEndpointEmbeddings(
+            model="sentence-transformers/all-MiniLM-L6-v2",
+            huggingfacehub_api_token=os.getenv("HUGGINGFACE_API_TOKEN"),
+        )
+        query_embedding = await embedder.aembed_query(query_text)
 
         memory = LongTermMemory()
         try:
@@ -28,8 +42,7 @@ async def history_node(state: AgentState) -> AgentState:
             memory.close()
 
     except Exception as e:
-        logger.warning("History retrieval unavailable, continuing without: %s", e)
-        prior_sessions = []
+        logger.info("History retrieval skipped: %s", e)
 
     return {
         **state,

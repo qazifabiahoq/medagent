@@ -13,15 +13,6 @@ logger = logging.getLogger("medagent.startup")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Pre-load embedding model so the first request doesn't pay the cold-start cost
-    try:
-        import asyncio
-        from memory.embedder import get_embedder
-        await asyncio.get_event_loop().run_in_executor(None, get_embedder)
-        logger.info("Embedding model pre-loaded")
-    except Exception as e:
-        logger.warning("Embedding pre-load skipped: %s", e)
-
     postgres_url = os.getenv("POSTGRES_URL", "")
     app.state.checkpointer = None
 
