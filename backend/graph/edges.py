@@ -24,8 +24,4 @@ def route_after_differential(state: AgentState) -> str:
 
 
 def route_after_risk(state: AgentState) -> str:
-    risk_flags = state.get("risk_flags", [])
-    critical = [f for f in risk_flags if f.get("severity") == "critical"]
-    if critical:
-        return "differential"
     return "department_router"

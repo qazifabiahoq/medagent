@@ -3,7 +3,7 @@ from typing import Callable
 from langgraph.graph import StateGraph, END
 
 from graph.state import AgentState
-from graph.edges import route_after_intake, route_after_differential, route_after_risk
+from graph.edges import route_after_intake, route_after_differential
 from agents.supervisor import supervisor_node
 from agents.intake import intake_node
 from agents.history import history_node
@@ -71,10 +71,7 @@ def build_graph(checkpointer):
         "risk": "risk",
     })
 
-    graph.add_conditional_edges("risk", route_after_risk, {
-        "department_router": "department_router",
-        "differential": "differential",
-    })
+    graph.add_edge("risk", "department_router")
 
     graph.add_edge("department_router", "summarizer")
     graph.add_edge("summarizer", END)

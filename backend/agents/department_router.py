@@ -71,7 +71,7 @@ _DEPARTMENT_RULES = [
 _PRIORITY_ORDER = {"CRITICAL": 0, "HIGH": 1, "MODERATE": 2, "ROUTINE": 3}
 
 
-def department_router_node(state: AgentState) -> AgentState:
+async def department_router_node(state: AgentState) -> AgentState:
     """
     Deterministic department routing — no LLM, runs in microseconds.
     Reads risk_flags + emergency_flags and assigns the patient to the
